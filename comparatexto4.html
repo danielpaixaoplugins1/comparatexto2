@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Comparador de Textos e Códigos Avançado</title>
+<style>
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  textarea {
+    margin: 10px;
+    width: 600px;
+    height: 200px;
+  }
+  #resultado, #textoOriginal {
+    margin-top: 20px;
+    white-space: pre-wrap;
+  }
+  .adicionado { background-color: lightgreen; }
+  .removido { background-color: lightcoral; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <textarea id="texto1" placeholder="Cole o primeiro texto ou código aqui..."></textarea>
+  <textarea id="texto2" placeholder="Cole o segundo texto ou código aqui..."></textarea>
+  <button id="compararBtn">Comparar</button>
+  <div id="resultado"></div>
+  <div id="textoOriginal"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+<script>
+document.getElementById('compararBtn').addEventListener('click', () => {
+  const dmp = new diff_match_patch();
+  const texto1 = document.getElementById('texto1').value;
+  const texto2 = document.getElementById('texto2').value;
+  let diffs = dmp.diff_main(texto1, texto2);
+  dmp.diff_cleanupSemantic(diffs);
+
+  const display = document.getElementById('resultado');
+  const originalTextDisplay = document.getElementById('textoOriginal');
+  display.innerHTML = ''; // Limpa os resultados anteriores
+  originalTextDisplay.innerHTML = ''; // Limpa os textos originais anteriores
+
+  diffs.forEach(part => {
+    const span = document.createElement('span');
+    span.textContent = part[1];
+    if (part[0] === 1) {
+      span.classList.add('adicionado');
+    } else if (part[0] === -1) {
+      span.classList.add('removido');
+    }
+    display.appendChild(span);
+    display.appendChild(document.createElement('br'));
+  });
+
+  // Adiciona os textos originais para comparação visual abaixo das diferenças
+  const originalTextHeader = document.createElement('h3');
+  originalTextHeader.textContent = 'Textos Originais para Comparação:';
+  originalTextDisplay.appendChild(originalTextHeader);
+
+  const originalText1 = document.createElement('p');
+  originalText1.textContent = 'Texto 1: ' + texto1;
+  originalTextDisplay.appendChild(originalText1);
+
+  const originalText2 = document.createElement('p');
+  originalText2.textContent = 'Texto 2: ' + texto2;
+  originalTextDisplay.appendChild(originalText2);
+});
+</script>
+
+</body>
+</html>
